@@ -1,0 +1,1 @@
+export const PATH_IMG_ENEMY = "./src/audioseimgs/ESPIRITORed.png";
