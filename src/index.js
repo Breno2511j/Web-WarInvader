@@ -24,6 +24,7 @@ let barradevelocidade;
 const Barras = {
     sobrecargaatual: 0,
     tiro: false,
+    vidaatual: 100,
 };
 
 const keys = {
@@ -49,7 +50,7 @@ const keys = {
 };
 
 window.addEventListener("DOMContentLoaded", () => {
-    barradevida = new BarraDeVida(".Barra .Vida"); 
+    barradevida = new BarraDeVida(".Barra .Vida", 100, Barras); 
     barradesobrecarga = new BarraDeSobrecarga(".BarraS .Sobrecarga", 100, Barras);
     barradevelocidade = new BarraDeVelocidade(".BarraV .Velocidade", 100, player);
     gameloop();
@@ -84,6 +85,22 @@ const hitboxinimigos2 = () => {
     })
 }
 
+const hitbpoxplayer = () => {
+    inimigo2Projectiles.some((projectile, projectileIndex) => {
+            if (player.hit(projectile)) {
+                inimigo2Projectiles.splice(projectileIndex, 1)
+                
+                const tam = 10;
+                const passo = 1;      
+             
+                Barras.vidaatual = tam -=passo;       
+
+              
+                if (Barras.vidaatual < 0)  Barras.vidaatual = 0;
+                barradevida.update();
+            }
+        })
+}
 
 
 function verification(){
@@ -135,6 +152,7 @@ const gameloop = () => {
     //movimentação dos inimigos
     //grupodeinvasores.update();
     
+    hitbpoxplayer();
     hitboxinimigos2();
 
     drawProjectiles();

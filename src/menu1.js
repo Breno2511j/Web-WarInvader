@@ -1,14 +1,14 @@
 
  export class BarraDeVida {
-  constructor(Divemcss, VidaMaxima = 100, VidaAtual = 100) {
+  constructor(Divemcss, VidaMaxima = 100, Barras) {
     this.vidaMaxima = VidaMaxima;
-    this.vidaAtual = VidaAtual;
+    this.vidaAtual = Barras;
     this.barraEmcss = document.querySelector(Divemcss);
     this.update();
   }
 
   update() {
-    const percent = (this.vidaAtual / this.vidaMaxima) * 100;
+    const percent = (this.vidaAtual.vidaatual / this.vidaMaxima) * 100;
     this.barraEmcss.style.height = percent + "%";
     this.barraEmcss.style.top = `${100 - percent}%`;
   }
