@@ -45,7 +45,7 @@ class Grupodeinvasores {
             
              if(this.moveDown) {
                 Inimigo2.moveDown();
-                Inimigo2.velo +=5;
+                Inimigo2.velo +=0.85;
              }
 
            if (this.direcao === "right") Inimigo2.moveRight();
@@ -64,6 +64,11 @@ class Grupodeinvasores {
       GRandomIn () {
         const index = Math.floor(Math.random() * this.inimigos.length);
         return this.inimigos[index];
+      }
+
+      Recomeço() {
+        this.inimigos = this.init();
+        this.direcao = "right";
       }
 } 
 

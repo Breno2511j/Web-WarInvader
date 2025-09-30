@@ -40,7 +40,7 @@ body{
   border-radius: 6px;
 
   position: absolute;
-  bottom: 20px;
+  bottom: 90px;
   left: 20%;
   transform: translateX(-50%);
   overflow: hidden;
@@ -64,7 +64,7 @@ body{
   border-radius: 6px;
 
   position: absolute;
-  bottom: 20px;
+  bottom: 90px;
   left: 50%;
   transform: translateX(-50%);
   overflow: hidden;
@@ -88,7 +88,7 @@ body{
   border-radius: 6px;
 
   position: absolute;
-  bottom: 20px;
+  bottom: 90px;
   left: 80%;
   transform: translateX(-50%);
   overflow: hidden;
@@ -160,4 +160,48 @@ body{
   bottom: 42.5%;
   left: 50%;
   transform: translateX(-50%);
+}
+
+#TiroContinuo, #TiroPerfurante {
+  width: 30%;
+  height: 30%;
+  margin: 1%;
+  border: 2px solid #010000;
+  background: rgb(255, 0, 212);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.HabilidadesAtivas {
+  width: 80%;
+  height: 60px;
+  border: 2px solid #fff;
+  background: rgb(47, 29, 2);
+  border-radius: 6px;
+
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  overflow: hidden;
+}
+
+.HabilidadesAtivas .HaConstante {
+  position: absolute;
+  top: 10px;
+  left: 10px; 
+  height: 40px;
+  width: 40px;
+  background: linear-gradient(to top, rgb(0, 255, 213), rgb(0, 115, 255));
+  border-radius: 6px;
+}
+
+.HabilidadesAtivas .HaPerfurante {
+  position: absolute;
+  top: 10px;
+  left: 60px; 
+  height: 40px;
+  width: 40px;
+  background: linear-gradient(to top, rgb(255, 0, 212), rgb(170, 0, 255));
+  border-radius: 6px;
 }

@@ -4,6 +4,13 @@ import Inimigo2 from "./classes/Inimigo2.js";
 import Grupodeinvasores from "./classes/Grupodeinvasores.js";
 import {BarraDeVida, BarraDeSobrecarga, BarraDeVelocidade} from "./menu1.js";
 
+const botaoTiroContinuo = document.getElementById("TiroContinuo");
+const botaoTiroPerfurante = document.getElementById("TiroPerfurante"); 
+
+const haperfurante = document.getElementById("HaPerfurante");
+const haconstante = document.getElementById("HaConstante");
+
+
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
 
@@ -14,7 +21,7 @@ const player = new Player(canvas.width, canvas.height);
 const playerProjectiles = [];
 const inimigo2Projectiles = [];
 const inimigo1 = new Inimigo1({x: 150, y:150});
-const inimigo2 = new Inimigo2({x: 250, y:250});
+const inimigo2 = new Inimigo2();
 const grupodeinvasores = new Grupodeinvasores (2,3);
 
 let barradevida;
@@ -25,6 +32,12 @@ const Barras = {
     sobrecargaatual: 0,
     tiro: false,
     vidaatual: 100,
+    alvo: 100,
+};
+
+const Botoes = {
+    TiroContinuo: false,
+    TiroPerfurante: false,
 };
 
 const keys = {
@@ -73,13 +86,39 @@ const clearProjectiles = () => {
     }); 
 };
 
+//loop reanimar orda
+const LRO = {
+    delay: 0,
+    delaymax: 100,
+    
+};
+
+const ReanimarOrda = () => {
+   if (grupodeinvasores.inimigos.length === 0) {
+
+    if (LRO.delay === 0) {
+      LRO.delay = LRO.delaymax;
+    }
+
+    if (LRO.delay > 0) LRO.delay--;  
+    if (LRO.delay === 0)  {
+    grupodeinvasores.cols = Math.round(Math.random() * 9) + 1;
+    grupodeinvasores.rows = Math.round(Math.random() * 4) + 1;
+    grupodeinvasores.Recomeço();
+  }
+ }
+};
+
 const hitboxinimigos2 = () => {
     grupodeinvasores.inimigos.forEach((inimigo2, Inimigo2index) => {
         playerProjectiles.some((projectile, projectileIndex) => {
             if (inimigo2.hit(projectile)) {
                 grupodeinvasores.inimigos.splice(Inimigo2index, 1)
                 //tiro perfurante remover "layerProjectiles.splice(projectileIndex, 1)"
+                //tiro perfurante
+                if (Botoes.TiroPerfurante === false) {
                 playerProjectiles.splice(projectileIndex, 1)
+                }
             }
         })
     })
@@ -90,12 +129,9 @@ const hitbpoxplayer = () => {
             if (player.hit(projectile)) {
                 inimigo2Projectiles.splice(projectileIndex, 1)
                 
-                const tam = 10;
-                const passo = 1;      
-             
-                Barras.vidaatual = tam -=passo;       
+                Barras.alvo -= 10; 
+                if (Barras.alvo > 100) Barras.alvo = 100;
 
-              
                 if (Barras.vidaatual < 0)  Barras.vidaatual = 0;
                 barradevida.update();
             }
@@ -109,7 +145,13 @@ function verification(){
         player.shoot(playerProjectiles);
         Barras.tiro = true;
         //tiro continuo remover "keys.shoot.released = false;"
+
+        //Apertar se quiser tiro continuo
+            if (Botoes.TiroContinuo) {
+        keys.shoot.released = true; 
+    } else {
         keys.shoot.released = false;
+    }
     }
     
     if (keys.left && player.position.x >= 0) {
@@ -118,7 +160,7 @@ function verification(){
     if (keys.right && player.position.x <= canvas.width - player.width) {
         player.moveRight();
     }
-
+    
     //chef
     if (keys.chef.up && inimigo1.position.y >= 0) {
         inimigo1.moveUp();
@@ -140,33 +182,47 @@ function verification(){
     }
 }
 
-
+let lastTime = Date.now();
+let fps = 0;
 
 const gameloop = () => {
+
+    const now = Date.now();
+    fps = Math.round(1000 / (now - lastTime));
+    lastTime = now;
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    ctx.fillStyle = "Black";
+    ctx.font = "10px Arial";
+    ctx.fillText(`FPS: ${fps}`, 1, 8);
+
+
+    
     inimigo1.draw(ctx);
-    inimigo2.draw(ctx);
+    
 
     grupodeinvasores.draw(ctx);
     //movimentação dos inimigos
     //grupodeinvasores.update();
     
+    ReanimarOrda();
+    
     hitbpoxplayer();
     hitboxinimigos2();
-
+    
     drawProjectiles();
-
+    
     clearProjectiles();
-
+    
     ctx.save();
-
+    
     verification();
-
+    
     player.draw(ctx);
-
+    
     ctx.restore();
-
+    
     window.requestAnimationFrame(gameloop);
 };
 
@@ -174,27 +230,27 @@ const gameloop = () => {
 
 window.addEventListener("keydown", (event) => {
     const key = event.key.toLowerCase();
-  //player
+    //player
     if (key === "a") keys.left = true, keys.act = true;
     if (key === "d") keys.right = true, keys.act = true;
     if (key === "j" ) keys.shoot.pressed = true, keys.BS = true;
     if (key === " " ) keys.shoot.pressed = true;
     
-  //Chef
+    //Chef
     if (event.key === "ArrowUp") keys.chef.up = true;
     if (event.key === "ArrowDown") keys.chef.down = true;
     if (event.key === "ArrowRight") keys.chef.right = true;
     if (event.key === "ArrowLeft") keys.chef.left = true;
-
-  //Teste
-   if (event.key === "t") keys.teste.Real = true;
-  
+    
+    //Teste
+    if (event.key === "t") keys.teste.Real = true;
+    
 });
 
 window.addEventListener("keyup", (event) => {
     const key = event.key.toLowerCase();
-
- //Player   
+    
+    //Player   
     if (key === "a") keys.left = false, keys.act = false ;
     if (key === "d") keys.right = false, keys.act = false ;
     if (key === "j") {
@@ -205,88 +261,181 @@ window.addEventListener("keyup", (event) => {
         keys.shoot.pressed = false;   
         keys.shoot.released = true;
     }
-
- //Chef
+    
+    //Chef
     if (event.key === "ArrowUp") keys.chef.up = false;
     if (event.key === "ArrowDown") keys.chef.down = false;
     if (event.key === "ArrowRight") keys.chef.right = false;
     if (event.key === "ArrowLeft") keys.chef.left = false;
-
- //Teste
-   if (event.key === "t") keys.teste.Real = false;
-
+    
+    //Teste
+    if (event.key === "t") keys.teste.Real = false;
+    
 });
 
 
-
+//Loops das barras
 //Loop da sobrecarga
 let delayCounter = 0;
 const delayMax = 2000 / 50;
 
-function velocidadeplayer() {
-   const vMin = 4;
-   const vMax = 12;
-   const acel = 0.5;
-   const desacel = 0.6;
-
-  if (keys.act === true)  player.velo += acel; 
-   
-  if (keys.act === false) player.velo -= desacel;
-
-  if (player.velo < vMin) player.velo = vMin;
-
-  if (player.velo > vMax) player.velo = vMax;
-
-   if (player.position.x <= 0) {
-    player.position.x = 0 ;
-    player.velo = vMin;
-  }
-
-  if (player.position.x + player.width > canvas.width) {
-    player.position.x = canvas.width - player.width ;
-    player.velo = vMin;
-  }
-  barradevelocidade.update();
+function atualizaVida() {
+    if (Barras.vidaatual > Barras.alvo) {
+        Barras.vidaatual -= 1; 
+        if (Barras.vidaatual < Barras.alvo) Barras.vidaatual = Barras.alvo;
+    }
+    barradevida.update();
 }
 
-function sobrecargaplayer() {
+function velocidadeplayer() {
+    const vMin = 4;
+    const vMax = 12;
+    const acel = 0.5;
+    const desacel = 0.6;
+    
+    if (keys.act === true)  player.velo += acel; 
+    
+    if (keys.act === false) player.velo -= desacel;
+    
+    if (player.velo < vMin) player.velo = vMin;
+    
+    if (player.velo > vMax) player.velo = vMax;
+    
+   if (player.position.x <= 0) {
+       player.position.x = 0 ;
+       player.velo = vMin;
+    }
+    
+    if (player.position.x + player.width > canvas.width) {
+        player.position.x = canvas.width - player.width ;
+    player.velo = vMin;
+}
+barradevelocidade.update();
+}
 
+const VBS = {
+    Aum: 5, //Aumento da barrra
+};
+
+function sobrecargaplayer() {
+    
     const VBS = {
         Min: 0,
         Max: 100,
-        Aum: 7, //Aumento da barrra
+        Aum: 5, //Aumento da barrra
         Dim: 1, //Velocidade de redução
+
     };
-
+    //Ajuste do aumento da barra
+    if (Botoes.TiroContinuo) VBS.Aum = 15;
+    if (Botoes.TiroPerfurante) VBS.Aum = 10;
+    
     if (Barras.tiro) {
-
+        
         Barras.sobrecargaatual += VBS.Aum;
 
         if (Barras.sobrecargaatual > VBS.Max) Barras.sobrecargaatual = VBS.Max;
-
+        
         Barras.tiro = false;
-
+        
         delayCounter = delayMax;
     } 
-
-  
+    
+    
     if (delayCounter > 0) delayCounter--;
 
     else {
-    Barras.sobrecargaatual -= VBS.Dim;
-
+        Barras.sobrecargaatual -= VBS.Dim;
+        
     if (Barras.sobrecargaatual < VBS.Min) Barras.sobrecargaatual = VBS.Min;
-    }
-
-    barradesobrecarga.update()
 }
 
+barradesobrecarga.update()
+}
 
+//Eventos do botão
+botaoTiroContinuo.addEventListener("mousedown", () => {
+    Botoes.TiroContinuo = true;
+    botaoTiroContinuo.disabled = true;
+
+    if (Botoes.TiroContinuo) {
+         setTimeout(() => {
+        Botoes.TiroContinuo = false;
+    }, 10000); //duração do poder
+    }
+
+    let tempoBTCH = 9; //tempo de duração poder
+
+    const intervaloBTCH = setInterval(() => {
+      haconstante.textContent = tempoBTCH; 
+      tempoBTCH--;
+
+      if (tempoBTCH < 0) clearInterval(intervaloBTCH),haconstante.textContent = 'Acabou';
+    } , 1000);
+
+    let tempoBTC = 39; //tempo de recarga poder
+
+    const intervaloBTC = setInterval(() => {
+      botaoTiroContinuo.textContent = tempoBTC; 
+      tempoBTC--;
+
+      if (tempoBTC < 0) clearInterval(intervaloBTC),botaoTiroContinuo.textContent = 'Pronto';
+    } , 1000);
+
+    if (botaoTiroContinuo.disabled) {
+        botaoTiroContinuo.style.backgroundColor = 'gray';
+    setTimeout(() => {
+        botaoTiroContinuo.disabled = false;
+        botaoTiroContinuo.style.backgroundColor = 'pink';
+    }, 40000);//tempo para poder usar novamente
+    }
+
+});
+
+botaoTiroPerfurante.addEventListener("mouseup", () => {
+    Botoes.TiroPerfurante = true;
+    botaoTiroPerfurante.disabled = true;
+
+    if (Botoes.TiroPerfurante) {
+         setTimeout(() => {
+        Botoes.TiroPerfurante = false;
+    }, 10000);//duração do poder
+    }
+
+    let tempoBTPH = 9; //tempo de duração poder
+
+    const intervaloBTPH = setInterval(() => {
+      haperfurante.textContent = tempoBTPH; 
+      tempoBTPH--;
+
+      if (tempoBTPH < 0) clearInterval(intervaloBTPH),haperfurante.textContent = 'Acabou';
+    } , 1000);
+
+    let tempoBTP = 9; //tempo de recarga poder
+    
+    const intervaloBTP = setInterval(() => {
+      botaoTiroPerfurante.textContent = tempoBTP; 
+      tempoBTP--;
+
+      if (tempoBTP < 0) clearInterval(intervaloBTP),botaoTiroPerfurante.textContent = 'Pronto';
+    } , 1000);
+
+    if (botaoTiroPerfurante.disabled) {
+
+        botaoTiroPerfurante.style.backgroundColor = 'gray';
+        setTimeout(() => {
+            botaoTiroPerfurante.disabled = false;
+            botaoTiroPerfurante.style.backgroundColor = 'pink';
+        }, 40000);//tempo para poder usar novamente
+    }
+
+
+});
 
 //loop movimentação inimigos
 setInterval(() => {
     const Inimigo2 = grupodeinvasores.GRandomIn();
-
+    
     if (Inimigo2) {
         Inimigo2.shoot(inimigo2Projectiles);
     }
@@ -295,6 +444,7 @@ setInterval(() => {
 
 //loop movimentação das barras
 setInterval(() => {
-   velocidadeplayer();
-   sobrecargaplayer();
+    velocidadeplayer();
+    sobrecargaplayer();
+    atualizaVida();
 }, 50);
